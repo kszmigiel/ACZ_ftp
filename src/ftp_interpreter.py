@@ -7,7 +7,7 @@ class FtpInterpreter(Cmd):
     """pro
     FTP client command line utility.
     """
-    def __init__(self, debug=False):
+    def __init__(self):
         Cmd.__init__(self)
         self.intro = ('xD')
         self.prompt = 'FTP > '
@@ -29,7 +29,7 @@ class FtpInterpreter(Cmd):
             return e
         return response
 
-    def do_connect(self, host):
+    def do_open(self, host):
         response = self._perform_ftp_command('connect', host)
         print(response)
         self._update_prompt()
@@ -54,21 +54,43 @@ class FtpInterpreter(Cmd):
         print(response)
         self._ftp_client = FTP()
 
-    def do_dir(self, *args):
+    def do_ls(self, *args):
         response = self._perform_ftp_command('dir')
+        print(response)
+
+    def do_mls(self, path):
+        response = self._perform_ftp_command('mlsd', path)
+        print(response)
+
+    def do_nlist(self, path):
+        response = self._perform_ftp_command('nlst', path)
+        print(response)
+
+    def do_cd(self, path):
+        response = self._perform_ftp_command('cwd', path)
         print(response)
 
     def do_mkdir(self, dir_name):
         response = self._perform_ftp_command('mkd', dir_name)
         print(response)
 
-
-    def do_list(self, filename):
-        """
-        Command to perform LIST command on the connected FTP host.
-        Args:
-            filename (str): Name of file or directory to retrieve info for.
-        """
-        response = self._perform_ftp_command('list', filename)
+    def do_rmdir(self, dir_name):
+        response = self._perform_ftp_command('rmd', dir_name)
         print(response)
 
+    def do_size(self, filename):
+        response = self._perform_ftp_command('size', filename)
+        print(response)
+
+    def do_delete(self, filename):
+        response = self._perform_ftp_command('delete', filename)
+        print(response)
+
+    def do_get(self, filename):
+        with open(filename, 'wb') as fp:
+            response = self._perform_ftp_command('retrbinary', 'RETR '+filename, fp.write)
+        print(response)
+
+    def do_put(self, filename):
+        with open(filename, 'rb') as fp:
+            response = self._perform_ftp_command('storbinary', 'STOR '+filename, fp)
